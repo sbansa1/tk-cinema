@@ -687,10 +687,11 @@ class CinemaEngine(Engine):
         self._init_shotgun_cache()
 
         doc_path = doc_path.replace('\\', '/').lower()
-        if doc_path in c4d._shotgun_cache['DOCUMENT_CONTEXT_MAP']:
-            return c4d._shotgun_cache['DOCUMENT_CONTEXT_MAP'][doc_path]
-        else:
-            return self.sgtk.context_from_path(doc_path)
+        if doc_path not in c4d._shotgun_cache['DOCUMENT_CONTEXT_MAP']:
+            context = self.sgtk.context_from_path(doc_path)
+            c4d._shotgun_cache['DOCUMENT_CONTEXT_MAP'][doc_path] = context
+
+        return c4d._shotgun_cache['DOCUMENT_CONTEXT_MAP'][doc_path]
 
     def set_document_context(self, doc_path, context):
         '''Store a shotgun context using a document's file path.'''

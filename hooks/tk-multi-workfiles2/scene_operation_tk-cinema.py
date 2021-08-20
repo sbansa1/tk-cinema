@@ -96,10 +96,47 @@ class SceneOperation(HookClass):
         elif operation == "open":
             c4d.documents.LoadFile(file_path)
         elif operation == "save":
-            c4d.documents.SaveDocument(doc, str(file_path), c4d.SAVEDOCUMENTFLAGS_NONE, c4d.FORMAT_C4DEXPORT)
+            c4d.documents.SaveDocument(
+                doc,
+                str(file_path),
+                c4d.SAVEDOCUMENTFLAGS_NONE,
+                c4d.FORMAT_C4DEXPORT
+            ),
             c4d.documents.LoadFile(file_path)
         elif operation == "save_as":
-            c4d.documents.SaveDocument(doc, str(file_path), c4d.SAVEDOCUMENTFLAGS_NONE, c4d.FORMAT_C4DEXPORT)
+            c4d.documents.SaveDocument(
+                doc,
+                str(file_path),
+                c4d.SAVEDOCUMENTFLAGS_NONE,
+                c4d.FORMAT_C4DEXPORT,
+            )
             c4d.documents.LoadFile(file_path)
         elif operation == "reset":
+            active = c4d.documents.GetActiveDocument()
+            if active.GetChanged():
+                response = c4d.gui.QuestionDialog(
+                    'The active document has unsaved changes.\n'
+                    'Would you like to save?'
+                )
+                if response:
+                    active_name = doc.GetName()
+                    active_path = doc.GetDocumentPath()
+                    active_file_path = os.path.join(active_path, active_name)
+                    c4d.documents.SaveDocument(
+                        doc,
+                        active_file_path or '',
+                        (
+                            c4d.SAVEDOCUMENTFLAGS_SAVEAS,
+                            c4d.SAVEDOCUMENTFLAGS_NONE
+                        )[bool(active_file_path)],
+                        c4d.FORMAT_C4DEXPORT,
+                    )
+
+            new_doc = c4d.documents.BaseDocument()
+            new_doc.SetDocumentName('Untitled')
+            c4d.documents.InsertBaseDocument(new_doc)
+            c4d.documents.SetActiveDocument(new_doc)
             return True
+        elif operation == 'prepare_new':
+            # TODO: Prepare new file...
+            pass
